@@ -1,0 +1,53 @@
+/*
+ ============================================================================
+ Name        : Ejemplo.c
+ Author      : 
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+
+	FILE *fp; //DECLARO UN PUNTERO AL ARCHIVO
+	char cadena[100]; //DECLARO UN ARREGLO PARA POR CARGAR LOS NOMBRES
+	int i; //DECLARO UN INDICE PARA EL BUCLE FOR()
+
+	setvbuf(stdout, NULL, _IONBF,0);
+
+    fp= fopen("fichero.txt", "w"); //CREAMOS UN ARCHIVO PARA ESCRIBIR
+
+    puts("Ingrese el nombre de 4 compa�eros:");
+	for(i=0; i<=3; i++) //BUCLE FOR PARA CARGAR 4 NOMBRES
+	{
+		gets(cadena); //CON LA FUNCI�N gets() OBTENGO LOS NOMBRES INGRESADOS POR EL TECLADO.
+
+		fputs(cadena, fp); //CON LA FUNCI�N  fputs() ESCRIBO LOS NOMBRES EN EL ARCHIVO fichero.txt
+
+		fprintf(fp, "%s", "\n"); // CON LA FUNCI�N fprintf() PODEMOS ESCRIBIR DATOS EN EL ARCHIVO CON FORMATO,
+		                         //EN ESTE CASO SE USA PARA EL SALTO DE LINEA
+	}
+
+	fclose(fp); //CERRAMOS EL ARCHIVO
+
+	//COMO QUEREMOS MOSTRAR LOS DATOS ANTERIORMENTE CARGADOS EN EL ARCHIVO fichero
+	// Y fp ES UN PUNTERO AL ARCHIVO, ENTONCES DEBEMOS "MOVER" EL PUNTERO AL INICIO DEL ARCHIVO NUEVAMENTE.
+	//ES POR ESTO QUE LO CERRAMOS Y LO VOLVEMOS ABRIR PERO AHORA CON EL MODO DE LECTURA.
+
+	fp= fopen("fichero.txt", "r"); //ABRIMOS EL ARCHIVO EN MODO LECTURA.
+
+	for(i=0; i<=3; i++) //BUCLE FOR PARA 4 NOMBRES
+	{
+		fgets(cadena,100, fp); //CON LA FUNCI�N fgets() OBTENEMOS LOS NOMBRES ALMACENADOS EN EL ARCHIVO
+		puts(cadena); //CON LA FUNCI�N puts() MOSTRAMOS POR PANTALLA LOS NOMBRES OBTENIDOS DESDE EL ARCHIVO.
+	}
+	fclose(fp); //CERRAMOS EL ARCHIVO.
+
+	return(0);
+
+
+}

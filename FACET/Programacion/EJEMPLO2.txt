@@ -1,0 +1,242 @@
+/*
+ ============================================================================
+ Name        : tp9.c
+ Author      : 
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct fecha{
+	int da_day;
+	int da_mon;
+	int da_year;
+} fecha;
+
+
+struct zoo{		int numJaula;
+				char especie[100];
+		  	    char nombreAni[100];
+				fecha fechaNac;
+				float peso;
+				float comida;
+				int frec;// entre 1 y 3
+				char salud; //	B: buena, M: mala, R: regular.
+			};
+
+
+typedef struct zoo ZOO;
+
+void leerArchi(FILE *archi1);
+void costoJaula(FILE * archi1);// informe 1
+void DatosAnimal(FILE *archi1); //informe 2
+void cantidadEspecie(FILE *archi1); //informe 3
+void calculoLimpieza(FILE *archi1); //informe 4
+
+int main ()
+{		FILE *archi1;
+
+		setvbuf(stdout, NULL, _IONBF, 0);
+
+		archi1= fopen("JAULAS.bin", "rb");
+		leerArchi(archi1); //PARA VERIFICAR LOS DATOS CARGADOS
+		fclose(archi1);
+
+		archi1= fopen("JAULAS.bin", "rb");
+		costoJaula(archi1); // INFORME1.TXT
+		fclose(archi1);
+
+		archi1= fopen("JAULAS.bin", "rb");
+		DatosAnimal(archi1);// INFORME2.TXT
+		fclose(archi1);
+
+		archi1= fopen("JAULAS.bin", "rb");
+		cantidadEspecie(archi1);// INFORME3.TXT
+		fclose(archi1);
+
+		archi1= fopen("JAULAS.bin", "rb");
+		calculoLimpieza(archi1);// INFORME4 POR PANTALLA
+		fclose(archi1);
+
+		return 0;
+}
+
+void leerArchi(FILE *archi1)
+{
+	ZOO animal;
+	// leo  del archivo binario  y escribo en la salida estandar
+	fread(&animal, sizeof(ZOO), 1, archi1);
+	while (!feof(archi1))
+	{
+		puts("\n======================");
+		printf("\nNumero de jaula: %d", animal.numJaula);
+
+		printf("\nEspecie del animal: ");
+		puts(animal.especie);
+
+		printf("\nNombre del animal: ");
+		puts(animal.nombreAni);
+
+		puts("Fecha de Nacimiento");
+		printf(" %d / %d/ %d ", animal.fechaNac.da_day, animal.fechaNac.da_mon, animal.fechaNac.da_year);
+
+		printf("\nPeso del animal: %f", animal.peso);
+
+		printf("\nCantidad de Comida: %f", animal.comida);
+
+		printf("\nFrecuencia de Limpieza: %d", animal.frec);
+
+		printf("\nEstado del Salud: %c", animal.salud);
+
+
+		fread(&animal, sizeof(ZOO), 1, archi1);
+	}
+
+}
+
+void costoJaula(FILE * archi1)
+{
+	ZOO animal;
+	FILE *informe1;
+	float total=0, alimento=0, limpieza=0;
+	// leo  del archivo binario  y escribo en la salida estandar
+	if ((informe1= fopen("informe1.text", "w")) == NULL)
+	{	printf("Imposible crear el archivo.\n");
+
+	}
+	// leo  del archivo binario  y escribo en el archivo de texto
+	fread(&animal, sizeof(ZOO), 1, archi1);
+	fprintf(informe1, "1er INFORME\n");
+	while (!feof(archi1))
+	{	alimento = animal.comida * 103.64;
+		switch(animal.frec){
+			case 1: limpieza = 80;break;
+			case 2: limpieza = 150;break;
+			case 3: limpieza = 220;break;
+		}
+		total = total + alimento + limpieza;
+		fprintf(informe1,"JAULA N�: %d \n", animal.numJaula);
+		fprintf(informe1,"Alimento: %.2f \n",alimento);
+		fprintf(informe1,"Limpieza: %.2f \n",limpieza);
+
+		fread(&animal, sizeof(ZOO), 1, archi1);
+	}
+	fprintf(informe1, "TOTAL: %f", total);
+
+}
+
+void DatosAnimal(FILE *archi1)
+{
+	ZOO animal;
+	FILE *informe2;
+	int edad;
+
+
+	if ((informe2= fopen("informe2.text", "w")) == NULL)
+	{	printf("Imposible crear el archivo.\n"); }
+
+	fread(&animal, sizeof(ZOO), 1, archi1);
+	fprintf(informe2, "2do INFORME\n");
+
+	while (!feof(archi1))
+	{
+		if(animal.fechaNac.da_year < 2019)
+		{
+			if(animal.fechaNac.da_mon < 11)
+			{
+				edad = 2019 - animal.fechaNac.da_year;
+			}
+			else{
+					if(animal.fechaNac.da_year > 11)
+					{
+						edad = 2019 - animal.fechaNac.da_year -1;
+					}
+					else{
+							if(animal.fechaNac.da_day< 8 || animal.fechaNac.da_day == 8)
+							{
+								edad = 2019 - animal.fechaNac.da_year;
+							}
+							else{ edad = 2019 - animal.fechaNac.da_year -1; }
+						}
+
+				}
+		}
+
+		fprintf(informe2,"Numero de jaula: %d", animal.numJaula);
+
+		fprintf(informe2,"\nNombre del animal: ");
+		fputs(animal.nombreAni, informe2);
+
+		fprintf(informe2,"\nEdad: %d", edad);
+
+		fprintf(informe2,"\nPeso del animal: %f", animal.peso);
+
+		fprintf(informe2,"\nEstado del Salud: %c", animal.salud);
+
+		fread(&animal, sizeof(ZOO), 1, archi1);
+	}
+
+}
+
+void cantidadEspecie(FILE *archi1)
+{
+	ZOO animal;
+	FILE *informe3;
+	int contAve=0, contMamifero=0, contReptil=0;
+
+	if ((informe3= fopen("informe3.text", "w")) == NULL)
+	{	printf("Imposible crear el archivo.\n"); }
+
+	fread(&animal, sizeof(ZOO), 1, archi1);
+	fprintf(informe3, "3er INFORME\n");
+
+	while (!feof(archi1))
+	{
+		if(strcmp(animal.especie, "Mamifero"))
+		{
+			contMamifero++;
+		}
+		else{
+			  if(strcmp(animal.especie, "Ave"))
+			  {
+						contAve++;
+			  }
+			  else{
+				      contReptil++;
+			      }
+		    }
+		fread(&animal, sizeof(ZOO), 1, archi1);
+	}
+
+	fprintf(informe3, "\n Cantidad de Mamiferos: %d", contMamifero);
+	fprintf(informe3, "\n Cantidad de Aves: %d", contAve);
+	fprintf(informe3, "\n Cantidad de Reptiles: %d", contReptil);
+
+}
+
+void calculoLimpieza(FILE *archi1)
+{
+	ZOO animal;
+	float costoTotal=0;
+
+	fread(&animal, sizeof(ZOO), 1, archi1);
+	puts("\n =============Informe 4===============");
+
+	while (!feof(archi1))
+	{
+		switch(animal.frec){
+			case 1: costoTotal = costoTotal+(animal.frec *80);
+			case 2: costoTotal = costoTotal+(animal.frec *150);
+			case 3: costoTotal = costoTotal+(animal.frec *220);
+		}
+		fread(&animal, sizeof(ZOO), 1, archi1);
+	}
+	printf("El costo total de limpieza de las jaulas es: %f", costoTotal);
+
+}

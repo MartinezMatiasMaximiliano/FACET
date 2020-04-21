@@ -1,0 +1,129 @@
+/*
+ ============================================================================
+ Name        : archivo.c
+ Author      : 
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+//DEFINIMOS UNA ESTRUCTURA PARA EL CLIENTE, USAMOS EL typedef PARA EVITAR EL USO DE LA PALABRA
+//STRUCT cliente CADA VEZ QUE DECLAREMOS UNA VARIABLE DE TIPO STRUCT.
+typedef struct cliente{
+	  char nombre[50];
+	  char apellido[50];
+	  int edad;
+}Cliente;
+
+int main(void) {
+
+	setvbuf(stdout,NULL,_IONBF,0);
+
+	FILE *pArchivo;
+
+	//CREAMOS UN ARCHIVO DE EXTENSI�N .bin, Y COMO VAMOS A CARGAR DATOS EN ESE ARCHIVO,
+	//PONEMOS wb ESTO SIGNIFICA QUE LO VAMOS A CARGAR (w: escritura desde el comienzo)Y b PORQUE EL ARCHIVO
+	//ES UN BINARIO.
+	pArchivo = fopen("Datos.bin", "wb");
+
+	char arreEntrada[100], arreSalida[100];
+	int i;
+	for(i=0; i<3; i++)
+	{
+		//SE DEBE TENER EN CUENTA PARA QUE EL USUARIO "INTERVENGA" EN LA CARGA DEL ARCHIVO
+		//DEBEMOS CARGAR, EN ESTE CASO EL ARREGLO, CON UNA FUNCI�N gets() QUE TOMA LOS DATOS INGRESADOS POR EL TECLADO.
+		puts("Ingrese el nombre del cliente");
+		gets(arreEntrada);
+
+		//EN VEZ DE MOSTRAR LOS DATOS CARGADOS POR PANTALLA LO QUE HACEMOS ES USAR LAS FUNCIONES
+		//fputs() Y fprintf() PARA "GRABARLOS" EN EL ARCHIVO.
+
+		fputs(arreEntrada, pArchivo);//USAMOS ESTA FUNCI�N CUANDO QUEREMOS INGRESAR TEXTO SIMPLE SIN FORMATO.
+		fprintf(pArchivo, "\n"); //USAMOS ESTA FUNCI�N CUANDO QUEREMOS DARLE FORMATO A LOS DATOS
+		//QUE SE ALMACENAR�N EN EL ARCHIVO,COMO EL SALTO DE LINEA, %d, %c, etc.
+	}
+
+	//DEBEMOS RECORDAR QUE DECLARAMOS UN PUNTERO A UN ARCHIVO, AL ESCRIBIR ESE ARCHIVO ESE PUNTERO
+	//SE VA "MOVIENDO" HACIA EL FINAL DEL ARCHIVO.ES POR ESTO QUE NECESITAMOS CERRARLO Y SI QUEREMOS
+	//VOLVER A RECORRERLO LO ABRIMOS NUEVAMENTE Y EL PUNTERO SE ENCONTRAR� AL INICIO DEL ARCHIVO.
+	fclose(pArchivo);
+
+	//ABRIMOS NUEVAMENTE EL ARCHIVO PERO SOLO PARA LEERLO, ES POR ESO QUE PONEMOS COMO MODO rb LEEMOS
+	//UN ARCHIVO BINARIO.
+	pArchivo = fopen("Datos.bin", "rb");
+	for(i=0; i<3; i++)
+	{
+		printf("El nombre del cliente %d es:", i);//INFORMACI�N QUE SE VER� POR PANTALLA.
+		//LEEMOS LOS DATOS ALMACENADOS EN EL ARCHIVO Y LO ALMACENAMOS EN UN ARREGLO.
+		fgets(arreSalida, 100, pArchivo);
+		//COMO LO QUEREMOS MOSTRAR POR PANTALLA DEBEMOS USAR LA FUNCI�N puts().
+		puts(arreSalida);
+	}
+
+
+	fclose(pArchivo); //CERRAMOS EL ARCHIVO
+
+	puts("USO DE LAS FUNCIONES fwrite y fread");
+	Cliente persona; //DECLARAMOS UNA VARIABLE DE NOMBRE persona DE TIPO CLIENTE.
+	int cant, j;
+
+	if ((pArchivo= fopen("Clientes.bin", "wb")) == NULL)//CONTROL EN CASO QUE NO SE PUEDA CREAR EL ARCHIVO.
+	{
+		printf("Imposible crear el archivo.\n");
+		return 1; // SE PUEDE USAR exit
+	}
+	puts("Ingrese la cantidad de clientes a cargar:");
+	scanf("%d", &cant);
+
+	for(j = 0; j < cant; j++)
+	{
+		fflush(stdin);
+		puts("Nombre del cliente:");
+		gets(persona.nombre);
+		fflush(stdin);
+
+		puts("Apellido del cliente:");
+		gets(persona.apellido);
+		fflush(stdin);
+
+		puts("Edad del cliente:");
+		scanf("%d", &persona.edad);
+		fflush(stdin);
+
+		//USAMOS LA FUNCI�N fwrite PARA CARGAR TODO EL "BLOQUE JUNTO", ES DECIR EVITAR ESCRIBIR EN EL
+		//ARCHIVO A CADA UNA DE LOS CAMPOS QUE TIENE LA VARIABLE ESTRUCTURADA.
+		fwrite(&persona, sizeof(Cliente), 1, pArchivo);
+		//LA ESTRUCTURA DE LA FUNCION fwrite ES LA SIGUIENTE:
+		//&persona: la variable estructurada que cargamos y queremos almacenar en el archivo.
+		//sizeof(Cliente): el tama�o del tip de dato, que en este caso es una estructura.
+		//1: me indica que iremos escribiendo en el archivo de a una.
+		//pArchivo: el archivo en donde escribiremos la informaci�n del cliente
+
+	}
+	fclose(pArchivo);
+
+	pArchivo= fopen("Clientes.bin", "rb");
+
+	//USAMOS LA FUNCI�N fread PARA LEER LA INFORMACI�N ALMACENADA EN EL ARCHIVO.
+	fread(&persona, sizeof(Cliente), 1, pArchivo);
+
+	while (!feof(pArchivo)) //MIENTRAS NO SEA EL FINAL DEL ARCHIVO ENTRA.
+	{
+		puts("*************************************");
+		printf("\nNombre del Cliente: ");
+		puts(persona.nombre);
+		printf("\nApellido del Cliente: ");
+		puts(persona.apellido);
+		printf("\nEdad del Cliente: %d", persona.edad);
+
+		fread(&persona, sizeof(Cliente), 1, pArchivo);//COMO LEEMOS DE A UNO, DEBEMOS TENER LA FUNCI�N
+		//fread DENTRO DEL BUCLE while.
+	}
+
+
+	return 0;
+}

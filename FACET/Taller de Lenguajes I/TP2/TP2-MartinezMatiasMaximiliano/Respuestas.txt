@@ -1,0 +1,6 @@
+Respuestas:
+
+2) f) No se puede ver el archivo TP2_1_2.cpp ya que no existe todavia en la rama master, entonces al hacer checkout desde Opcion_2 a master, la carpeta vuelve
+al estado de master, sin TP2_1_2.cpp
+
+2) j) gitk muestra una interfaz con todos los cambios registrados por le repositorio
